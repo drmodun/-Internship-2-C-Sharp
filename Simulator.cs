@@ -1,6 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
-/*using System.ComponentModel.Design;
+using System.ComponentModel.Design;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 Console.WriteLine("Hello, World!");
 var igraci = new Dictionary<string, (string position, int rating)>();
@@ -9,7 +10,7 @@ var status = new Dictionary<string, int>();
 
 bool Provjera(Dictionary<string, int> poz)
 {
-    if (poz["DF"]>=4 && poz["MF"] >= 3 && poz["FW"] >= 3&& poz["GK"] >= 1)
+    if (poz["DF"] >= 4 && poz["MF"] >= 3 && poz["FW"] >= 3 && poz["GK"] >= 1)
     {
         return true;
     }
@@ -20,10 +21,9 @@ bool Provjera(Dictionary<string, int> poz)
 }
 Dictionary<string, (string position, int rating)> StartnaMomcad(Dictionary<string, (string position, int rating)> rjecnik)
 {
-    var sortedDict = rjecnik.OrderBy(x => x.Value.rating).ToDictionary(x=>x.Key,x=>x.Value);
-    IspisRjecnik(sortedDict);
+    var sortedDict = rjecnik.OrderBy(x => x.Value.rating).ToDictionary(x => x.Key, x => x.Value);
     var momcadDict = new Dictionary<string, (string position, int rating)>();
-    foreach (var item in sortedDict)
+    foreach (var item in sortedDict.Reverse())
     {
         if (item.Value.position == "GK")
         {
@@ -32,9 +32,9 @@ Dictionary<string, (string position, int rating)> StartnaMomcad(Dictionary<strin
             break;
         }
     }
-    for (int i=0; i<4; i++)
+    for (int i = 0; i < 4; i++)
     {
-        foreach(var item in sortedDict)
+        foreach (var item in sortedDict.Reverse())
         {
             if (item.Value.position == "DF")
             {
@@ -44,9 +44,9 @@ Dictionary<string, (string position, int rating)> StartnaMomcad(Dictionary<strin
             }
         }
     }
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 3; i++)
     {
-        foreach (var item in sortedDict)
+        foreach (var item in sortedDict.Reverse())
         {
             if (item.Value.position == "MF")
             {
@@ -56,9 +56,9 @@ Dictionary<string, (string position, int rating)> StartnaMomcad(Dictionary<strin
             }
         }
     }
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 3; i++)
     {
-        foreach (var item in sortedDict)
+        foreach (var item in sortedDict.Reverse())
         {
             if (item.Value.position == "FW")
             {
@@ -68,10 +68,11 @@ Dictionary<string, (string position, int rating)> StartnaMomcad(Dictionary<strin
             }
         }
     }
+    //IspisRjecnik(momcadDict);
     return momcadDict;
 }
 {
-    
+
 }
 void DodajIgrace(Dictionary<string, (string position, int rating)> rjecnik)
 {
@@ -124,10 +125,43 @@ void Trening(Dictionary<string, (string position, int rating)> rjecnik)
 }
 void Utakmica(Dictionary<string, (string position, int rating)> rjecnik, Dictionary<string, int> poz)
 {
-    if (Provjera(poz) == true)
+    if (1 == 1)//Popravi provjeru Provjera(poz) == true)
     {
-        var a = 1;
+        var rand = new Random();
+        var momcad = StartnaMomcad(rjecnik);
+        var golHome = rand.Next(0, 5);
+        var golAway = rand.Next(0, 5);
+        if (golHome > golAway)
+        {
+            //Napravi tablicu
+            var tablica = 0;
+            foreach (var item in momcad)
+            {
+                rjecnik[item.Key] = (item.Value.position, item.Value.rating + (item.Value.rating * 2 / 100));
 
+            }
+        }
+        else if (golHome < golAway)
+        {
+            //Napravi tablicu
+            var tablica = 0;
+            foreach (var item in momcad)
+            {
+                rjecnik[item.Key] = (item.Value.position, item.Value.rating - (item.Value.rating * 2 / 100));
+
+            }
+        }
+        for (int i = 0; i < golHome; i++)
+        {
+            var strijelac = rand.Next(0, 11);
+            var popis = momcad.Keys.ToList();
+            rjecnik[popis[strijelac]] = (rjecnik[popis[strijelac]].position, rjecnik[popis[strijelac]].rating + (rjecnik[popis[strijelac]].rating * 5 / 100));
+            Console.WriteLine($"Strijelac je {popis[strijelac]}");
+
+        }
+        Console.WriteLine($"{golHome} : {golAway}");
+        IspisRjecnik(momcad);
+        IspisRjecnik(rjecnik);
     }
     else
     {
@@ -135,6 +169,7 @@ void Utakmica(Dictionary<string, (string position, int rating)> rjecnik, Diction
     }
 }
 StartnaMomcad(igraci);
+
 while (igra == 1)
 {
     Console.WriteLine("1 - Odradi trening");
@@ -150,9 +185,9 @@ while (igra == 1)
             IspisRjecnik(igraci);
             break;
         case "2":
+            Utakmica(igraci, status);
             break;
     }
 
     //igra = 0;
 }
-*/
