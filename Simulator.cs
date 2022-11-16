@@ -7,6 +7,8 @@ using static System.Net.Mime.MediaTypeNames;
 using System.Runtime.Intrinsics.X86;
 using System.Collections.Concurrent;
 using System.Security;
+using System.ComponentModel.DataAnnotations;
+using System.Runtime.InteropServices;
 
 Console.WriteLine("Hello, World!");
 var igraci = new Dictionary<string, (string position, int rating)>();
@@ -17,7 +19,22 @@ var rezultati = new List<(string home, string away, string result)>();
 pozicije.Add(2);    
 pozicije.Add(6);    
 pozicije.Add(8);
-pozicije.Add(5);    
+pozicije.Add(5);
+bool Dialog()
+{
+    Console.WriteLine("Ova akcija zahtijeva konfirmaciju pošto će radnja biti koančna");
+    Console.WriteLine("1 - DA");
+    Console.WriteLine("0 - NE");
+    var confirmation=Console.ReadLine();
+    if (confirmation == "1")
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
 bool Provjera(List<int> poz)
 {
     if (poz[1] >= 4 && poz[2] >= 3 && poz[3] >= 3 && poz[0] >= 1)
@@ -81,57 +98,167 @@ Dictionary<string, (string position, int rating)> StartnaMomcad(Dictionary<strin
     //IspisRjecnik(momcadDict);
     return momcadDict;
 }
-Dictionary<string, (string position, int rating)> StartnaMomcad1(Dictionary<string, (string position, int rating)> rjecnik)
+void Edit(Dictionary<string, (string position, int rating)> rjecnik, Dictionary<string, int> goals)
 {
-    var sortedDict = rjecnik.OrderBy(x => x.Value.rating).ToDictionary(x => x.Key, x => x.Value);
-    var momcadDict = new Dictionary<string, (string position, int rating)>();
-    foreach (var item in sortedDict.Reverse())
+    var momcadDicct = rjecnik;
+    var pos = 1;
+    while (pos == 1)
     {
-        if (item.Value.position == "GK")
+        Console.WriteLine("Izaberite opciju");
+        Console.WriteLine("1 - kreiraj novog igrača");
+        Console.WriteLine("2 - Izbriši igrača");
+        Console.WriteLine("3 - Uredi igrača");
+        var playerChoice = Console.ReadLine();
+        switch (playerChoice)
         {
-            momcadDict.Add(item.Key, item.Value);
-            sortedDict.Remove(item.Key);
-            break;
-        }
-    }
-    for (int i = 0; i < 4; i++)
-    {
-        foreach (var item in sortedDict.Reverse())
-        {
-            if (item.Value.position == "DF")
-            {
-                momcadDict.Add(item.Key, item.Value);
-                sortedDict.Remove(item.Key);
+            case "1":
+                if (rjecnik.Count > 26)
+                {
+                    break;
+                }
+                Console.WriteLine(" ");
+                Console.WriteLine("Upišite ime igrača");
+                var ime = Console.ReadLine().Trim().TrimEnd();
+                if (ime.Length == 0)
+                {
+                    Console.WriteLine("Netočno ime");
+                    break;
+                }
+                Console.WriteLine("Upišite poziciju");
+                var poz = Console.ReadLine();
+                if (poz != "MF" && poz != "FW" && poz != "DF" && poz != "GK")
+                {
+                    Console.WriteLine("Netočna pozicija, molim vas upišite poziciju GK DF MF ili FW");
+                    break;
+                }
+                Console.WriteLine("Upišite rating");
+                var rating = -1;
+                int.TryParse(Console.ReadLine(), out rating);
+                if (rating < 1 || rating > 100)
+                {
+                    Console.WriteLine("Netočno upsian rating, molim vas upišite broj između 1 i 100");
+                    break;
+                }
+                rjecnik.Add(ime, (poz, rating));
+                pos = 0;
+                return;
                 break;
-            }
-        }
-    }
-    for (int i = 0; i < 3; i++)
-    {
-        foreach (var item in sortedDict.Reverse())
-        {
-            if (item.Value.position == "MF")
-            {
-                momcadDict.Add(item.Key, item.Value);
-                sortedDict.Remove(item.Key);
+            case "2":
+                Console.WriteLine("Upišite ime igrača kojeg želite izbrisati");
+                var playerToBeDeleted = Console.ReadLine();
+                if (rjecnik.ContainsKey(playerToBeDeleted) == true)
+                {
+                    rjecnik.Remove(playerToBeDeleted);
+                    Console.WriteLine("Igrač izbrisan");
+                    bool con = Dialog();
+                    if (con == true)
+                    {
+                        rjecnik.Remove(playerToBeDeleted);
+                        Console.WriteLine("Igrač izbrisan");
+                        pos = 0;
+                        return;
+
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Igrač toga imena ne postoji");
+                }
                 break;
-            }
-        }
-    }
-    for (int i = 0; i < 3; i++)
-    {
-        foreach (var item in sortedDict.Reverse())
-        {
-            if (item.Value.position == "FW")
-            {
-                momcadDict.Add(item.Key, item.Value);
-                sortedDict.Remove(item.Key);
+            case "3":
+                Console.WriteLine("Upišite ime igrača za urediti");
+                var playerToEdit = Console.ReadLine();
+                if (rjecnik.ContainsKey(playerToEdit) == true)
+                {
+                    Console.WriteLine("Upišite što želite promjeniti");
+                    Console.WriteLine("1 - Ime igrača");
+                    Console.WriteLine("2 - Poziciju igrača");
+                    Console.WriteLine("3 - Rating igrača");
+                    var editChoice = Console.ReadLine();
+                    switch (editChoice)
+                    {
+                        case "1":
+                            Console.WriteLine("Upišite ime igrača");
+                            var newName = Console.ReadLine().Trim().TrimEnd();
+                            if (newName.Length == 0)
+                            {
+                                Console.WriteLine("Netočno ime");
+                                break;
+                            }
+                            var con1 = Dialog();
+                            if (con1 == false)
+                            {
+                                break;
+                            }
+                            rjecnik.Add(newName, (rjecnik[playerToEdit].position, rjecnik[playerToEdit].rating));
+                            rjecnik.Remove(playerToEdit);
+                            if (goals.ContainsKey(playerToEdit) == true)
+                            {
+                                goals.Add(newName, goals[playerToEdit]);
+                                goals.Remove(playerToEdit);
+                            }
+                            Console.WriteLine("Ime promijenjeno");
+                            pos = 0;
+                            return;
+                            break;
+                        case "2":
+                            Console.WriteLine("Upišite poziciju igrača");
+                            var pozicija = Console.ReadLine();
+                            if (pozicija != "MF" && pozicija != "FW" && pozicija != "DF" && pozicija != "GK")
+                            {
+                                Console.WriteLine("Netočna pozicija, molim vas upišite poziciju GK DF MF ili FW");
+                                break;
+                            }
+                            var con2 = Dialog();
+                            if (con2 == false)
+                            {
+                                break;
+                            }
+                            rjecnik[playerToEdit] = (pozicija, rjecnik[playerToEdit].rating);
+                            Console.WriteLine("Pozicija promijenjena");
+                            pos = 0;
+                            return;
+                            break;
+                        case "3":
+                            Console.WriteLine("Upišite rating igrača");
+                            var update = -1;
+                            int.TryParse(Console.ReadLine(), out update);
+                            if (update < 1 || update > 100)
+                            {
+                                Console.WriteLine("Netočno upsian rating, molim vas upišite broj između 1 i 100");
+                                break;
+                            }
+                            rjecnik[playerToEdit] = (rjecnik[playerToEdit].position, update);
+
+                            var con3 = Dialog();
+                            if (con3 == false)
+                            {
+                                break;
+                            }
+                            rjecnik[playerToEdit] = (rjecnik[playerToEdit].position, update);
+                            Console.WriteLine("Rating promijenjen");
+                            pos = 0;
+                            return;
+                            break;
+                        case "0":
+                            return;
+                        default:
+                            Console.WriteLine("Nije upisana valjana akcija");
+                            Console.WriteLine(" ");
+                            break ;
+
+        
+
+                    }
+                }
                 break;
-            }
+                
         }
     }
-    //IspisRjecnik(momcadDict);
-    return momcadDict;
 }
 void Setup(Dictionary<string, (string position, int rating)> rjecnik, Dictionary<string, (int bodovi, int goalDifference)> tablica)
 {
@@ -178,13 +305,13 @@ var igra = 1;
 void Trening(Dictionary<string, (string position, int rating)> rjecnik)
 {
     var rand = new Random();
-
     foreach (var item in rjecnik)
     {
         int napredak = rand.Next(-5, 5);
+        string oldRating=item.Value.rating.ToString();    
+        
+        Console.WriteLine($"{item.Key}, pozicija {item.Value.position}, rating {oldRating} -> {item.Value.rating + (item.Value.rating * napredak / 100)} ");
         rjecnik[item.Key] = (item.Value.position, item.Value.rating + (item.Value.rating * napredak / 100));
-
-
     }
 }
 void Utakmica(Dictionary<string, (string position, int rating)> rjecnik, List<int> poz, Dictionary<string, (int bodovi, int goalDifference)> tablica, int opponentNumber, Dictionary<string, int> scored, List<(string home, string away, string result)> results)
@@ -447,7 +574,6 @@ while (igra == 1)
         case "1":
             Console.WriteLine(" ");
             Trening(igraci);
-            IspisRjecnik(igraci);
             break;
         case "2":
             Console.WriteLine(" ");
@@ -466,8 +592,11 @@ while (igra == 1)
             Console.WriteLine(" ");
             Statistika(igraci, table, rezultati);
             break;
-
+        case "4":
+            Console.WriteLine(" ");
+            Edit(igraci, strijelci);
+            break;
     }
-    table=table.OrderBy(x=> x.Value.bodovi).ThenBy(x=>x.Value.goalDifference).ToDictionary(x => x.Key, x => x.Value).Reverse().ToDictionary(x => x.Key, x => x.Value);
+    table =table.OrderBy(x=> x.Value.bodovi).ThenBy(x=>x.Value.goalDifference).ToDictionary(x => x.Key, x => x.Value).Reverse().ToDictionary(x => x.Key, x => x.Value);
     //igra = 0;
 }
