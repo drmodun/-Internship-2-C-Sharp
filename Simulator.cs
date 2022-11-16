@@ -119,7 +119,7 @@ void Edit(Dictionary<string, (string position, int rating)> rjecnik, Dictionary<
                 Console.WriteLine(" ");
                 Console.WriteLine("Upišite ime igrača");
                 var ime = Console.ReadLine().Trim().TrimEnd();
-                if (ime.Length == 0)
+                if (ime.Length == 0 || rjecnik.ContainsKey(ime)==true)
                 {
                     Console.WriteLine("Netočno ime");
                     break;
@@ -452,16 +452,12 @@ void Statistika(Dictionary<string, (string position, int rating)> rjecnik, Dicti
             var pronađen = 0;
             foreach (var item in rjecnik)
             {
-                if (Equals(item.Key.ToString(), inputKey)==true)
+                if (item.Key==inputKey)
                 {
 
                     Console.WriteLine($"{inputKey},  pozicija {rjecnik[inputKey].position} i rating {rjecnik[inputKey].rating}");
                     pronađen++; 
                     break;
-                }
-                else
-                {
-                    Console.WriteLine(item.Key + " " + inputKey);
                 }
 
             }
@@ -596,6 +592,10 @@ while (igra == 1)
             Console.WriteLine(" ");
             Edit(igraci, strijelci);
             break;
+        case "0":
+            Environment.Exit(0);
+            break;
+
     }
     table =table.OrderBy(x=> x.Value.bodovi).ThenBy(x=>x.Value.goalDifference).ToDictionary(x => x.Key, x => x.Value).Reverse().ToDictionary(x => x.Key, x => x.Value);
     //igra = 0;
