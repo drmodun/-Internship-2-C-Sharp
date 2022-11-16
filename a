@@ -1,0 +1,35 @@
+[33mcommit b4a9ea481ac1d04762a0db16d0e6782ff0cef4ee[m[33m ([m[1;36mHEAD -> [m[1;32mfirstversion[m[33m, [m[1;31morigin/firstversion[m[33m)[m
+Author: drmodun <jan.modun.st@gmail.com>
+Date:   Tue Nov 15 18:24:52 2022 +0100
+
+    scoreboard made, fixed position check, third option on the way
+
+[33mcommit e1f47702b23395d048a50fb5ee9ffeb5907f0e60[m
+Author: drmodun <jan.modun.st@gmail.com>
+Date:   Mon Nov 14 21:52:58 2022 +0100
+
+    second option 2
+
+[33mcommit 1995930b928d2d241f3ec2852ba31aaa8d227079[m
+Author: drmodun <jan.modun.st@gmail.com>
+Date:   Mon Nov 14 21:52:10 2022 +0100
+
+    second option works
+
+[33mcommit 69fe48d1b80dd70e3e9bd2218f835edc13fa7196[m
+Author: drmodun <jan.modun.st@gmail.com>
+Date:   Mon Nov 14 17:12:56 2022 +0100
+
+    first verison
+
+[33mcommit a1ecbc2ae35b304b42e1b17b396bb43345b09412[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m
+Author: drmodun <jan.modun.st@gmail.com>
+Date:   Mon Nov 14 17:11:23 2022 +0100
+
+    init repo
+
+[33mcommit 26fedd38c795f4093d04f6c864c64e008c28d38a[m
+Author: drmodun <74469438+drmodun@users.noreply.github.com>
+Date:   Mon Nov 14 17:09:22 2022 +0100
+
+    Initial commit

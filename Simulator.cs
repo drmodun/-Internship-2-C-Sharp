@@ -6,11 +6,14 @@ using System.Runtime.CompilerServices;
 using static System.Net.Mime.MediaTypeNames;
 using System.Runtime.Intrinsics.X86;
 using System.Collections.Concurrent;
+using System.Security;
 
 Console.WriteLine("Hello, World!");
 var igraci = new Dictionary<string, (string position, int rating)>();
 var table = new Dictionary<string, (int bodovi, int goalDifference)>();
 var pozicije = new List<int>();
+var strijelci = new Dictionary<string, int>();
+var rezultati = new List<(string home, string away, string result)>();
 pozicije.Add(2);    
 pozicije.Add(6);    
 pozicije.Add(8);
@@ -184,7 +187,7 @@ void Trening(Dictionary<string, (string position, int rating)> rjecnik)
 
     }
 }
-void Utakmica(Dictionary<string, (string position, int rating)> rjecnik, List<int> poz, Dictionary<string, (int bodovi, int goalDifference)> tablica, int opponentNumber)
+void Utakmica(Dictionary<string, (string position, int rating)> rjecnik, List<int> poz, Dictionary<string, (int bodovi, int goalDifference)> tablica, int opponentNumber, Dictionary<string, int> scored, List<(string home, string away, string result)> results)
 {
     string[] opponents = new string[] { "Maroko", "Kanada", "Belgija" };
     var opponent= opponents[opponentNumber];
@@ -205,7 +208,7 @@ void Utakmica(Dictionary<string, (string position, int rating)> rjecnik, List<in
 
             foreach (var item in momcad)
             {
-                rjecnik[item.Key] = (item.Value.position, item.Value.rating + (item.Value.rating * 2 / 100));
+                rjecnik[item.Key] = (item.Value.position, (int)((double)item.Value.rating *1.02));
 
             }
         }
@@ -245,7 +248,7 @@ void Utakmica(Dictionary<string, (string position, int rating)> rjecnik, List<in
 
             
         }
-        else if (golHome < golAway)
+        else if (golSim < golSim2)
         {
             pointsHome = 0;
             pointsAway = 3;
@@ -257,25 +260,35 @@ void Utakmica(Dictionary<string, (string position, int rating)> rjecnik, List<in
             pointsAway = 1;
         }
         tablica[team1] = (tablica[team1].bodovi + pointsHome, tablica[team1].goalDifference + (golSim - golSim2));
-        tablica[team2] = (tablica[team2].bodovi + pointsAway, tablica[team2].goalDifference + (golSim - golSim2));
+        tablica[team2] = (tablica[team2].bodovi + pointsAway, tablica[team2].goalDifference + (golSim2 - golSim));
+        Console.WriteLine($"{golHome} : {golAway}");
         for (int i = 0; i < golHome; i++)
         {
-            var strijelac = rand.Next(0, 11);
+            var strijelac = rand.Next(1, 11);
             var popis = momcad.Keys.ToList();
             rjecnik[popis[strijelac]] = (rjecnik[popis[strijelac]].position, rjecnik[popis[strijelac]].rating + (rjecnik[popis[strijelac]].rating * 5 / 100));
             Console.WriteLine($"Strijelac je {popis[strijelac]}");
-
+            if (scored.ContainsKey(popis[strijelac]) == true)
+            {
+                scored[popis[strijelac]]++;
+            }
+            else
+            {
+                scored.Add(popis[strijelac], 1);
+            }
         }
-        Console.WriteLine($"{golHome} : {golAway}");
-        IspisRjecnik(momcad);
-        IspisRjecnik(rjecnik);
+        results.Add(("Hrvatska", opponent, $"{golHome} : {golAway}"));
+        results.Add((team1, team2, $"{golSim} : {golSim2}"));
+
+        //IspisRjecnik(momcad);
+        //IspisRjecnik(rjecnik);
     }
     else
     {
         Console.WriteLine("Nije eligiblno igrati utamkicu");
     }
 }
-void Statistika(Dictionary<string, (string position, int rating)> rjecnik, Dictionary<string, (int bodovi, int goalDifference)> tablica)
+void Statistika(Dictionary<string, (string position, int rating)> rjecnik, Dictionary<string, (int bodovi, int goalDifference)> tablica, List<(string home, string away, string result)> results)
 {
     
 
@@ -368,6 +381,40 @@ void Statistika(Dictionary<string, (string position, int rating)> rjecnik, Dicti
             IspisRjecnik(StartnaMomcad(rjecnik));
             break;
         case "8":
+            Console.WriteLine("Strijelci su");
+            foreach (var item in strijelci)
+            {
+                Console.WriteLine($"{item.Key}, zabijeni golovi: {item.Value}");
+            }
+            if (strijelci.Keys.Count == 0)
+            {
+                Console.WriteLine("Nema strijelaca");
+            }
+            break;
+        case "9":
+            foreach (var item in results)
+            {
+                if (item.home == "Hrvatska")
+                {
+                    Console.WriteLine($"{item.home} {item.result} {item.away}");
+                }
+            }
+            if (results.Count == 0)
+            {
+                Console.WriteLine("Nije odigrana ni jedna utakmica");
+            }
+            break;
+        case "10":
+            foreach (var item in results)
+            {
+                Console.WriteLine($"{item.home} {item.result} {item.away}");
+            }
+            if (results.Count == 0)
+            {
+                Console.WriteLine("Nije odigrana ni jedna utakmica");
+            }
+            break;
+        case "11":
             var pos = 1;
             Console.WriteLine("Pozicija   Zemlja   Bodovi   Gol diferenca");
             foreach(var item in tablica)
@@ -407,7 +454,7 @@ while (igra == 1)
             if (kolo < 3)
             {
                 Console.WriteLine($"{kolo}");
-                Utakmica(igraci, pozicije, table, kolo);
+                Utakmica(igraci, pozicije, table, kolo, strijelci, rezultati);
                 kolo++;
             }
             else
@@ -417,10 +464,10 @@ while (igra == 1)
             break;
         case "3":
             Console.WriteLine(" ");
-            Statistika(igraci, table);
+            Statistika(igraci, table, rezultati);
             break;
 
     }
-
+    table=table.OrderBy(x=> x.Value.bodovi).ThenBy(x=>x.Value.goalDifference).ToDictionary(x => x.Key, x => x.Value).Reverse().ToDictionary(x => x.Key, x => x.Value);
     //igra = 0;
 }
