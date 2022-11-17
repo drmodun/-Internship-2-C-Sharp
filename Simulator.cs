@@ -9,17 +9,12 @@ using System.Collections.Concurrent;
 using System.Security;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.InteropServices;
-
+//Dodaj komentare, poboljsaj izlzaenje i trazi bugove
 Console.WriteLine("Hello, World!");
 var igraci = new Dictionary<string, (string position, int rating)>();
 var table = new Dictionary<string, (int bodovi, int goalDifference)>();
-var pozicije = new List<int>();
 var strijelci = new Dictionary<string, int>();
 var rezultati = new List<(string home, string away, string result)>();
-pozicije.Add(2);    
-pozicije.Add(6);    
-pozicije.Add(8);
-pozicije.Add(5);
 bool Dialog()
 {
     Console.WriteLine("Ova akcija zahtijeva konfirmaciju pošto će radnja biti koančna");
@@ -35,9 +30,29 @@ bool Dialog()
         return false;
     }
 }
-bool Provjera(List<int> poz)
+bool Provjera(Dictionary<string, (string position, int rating)>rjecnik)
 {
-    if (poz[1] >= 4 && poz[2] >= 3 && poz[3] >= 3 && poz[0] >= 1)
+    int[] poz = new int[]{ 0, 0, 0, 0};
+    foreach (var item in rjecnik)
+    {
+        switch (item.Value.position)
+        {
+            case "MF":
+                poz[2]++;
+                break;
+            case "GK":
+                poz[0]++;
+                break;
+            case "FW":
+                poz[3]++;
+                break;
+            case "DF":
+                poz[1]++;
+                break;
+
+        }
+    }
+    if (poz[0] > 0 && poz[1]>=4 && poz[2]>=3 && poz[3] >= 3)
     {
         return true;
     }
@@ -108,9 +123,13 @@ void Edit(Dictionary<string, (string position, int rating)> rjecnik, Dictionary<
         Console.WriteLine("1 - kreiraj novog igrača");
         Console.WriteLine("2 - Izbriši igrača");
         Console.WriteLine("3 - Uredi igrača");
+        Console.WriteLine("0 - Main Menu");
         var playerChoice = Console.ReadLine();
         switch (playerChoice)
         {
+            case "0":
+                pos = 0;
+                return;
             case "1":
                 if (rjecnik.Count > 26)
                 {
@@ -148,8 +167,6 @@ void Edit(Dictionary<string, (string position, int rating)> rjecnik, Dictionary<
                 var playerToBeDeleted = Console.ReadLine();
                 if (rjecnik.ContainsKey(playerToBeDeleted) == true)
                 {
-                    rjecnik.Remove(playerToBeDeleted);
-                    Console.WriteLine("Igrač izbrisan");
                     bool con = Dialog();
                     if (con == true)
                     {
@@ -244,8 +261,6 @@ void Edit(Dictionary<string, (string position, int rating)> rjecnik, Dictionary<
                             pos = 0;
                             return;
                             break;
-                        case "0":
-                            return;
                         default:
                             Console.WriteLine("Nije upisana valjana akcija");
                             Console.WriteLine(" ");
@@ -314,11 +329,11 @@ void Trening(Dictionary<string, (string position, int rating)> rjecnik)
         rjecnik[item.Key] = (item.Value.position, item.Value.rating + (item.Value.rating * napredak / 100));
     }
 }
-void Utakmica(Dictionary<string, (string position, int rating)> rjecnik, List<int> poz, Dictionary<string, (int bodovi, int goalDifference)> tablica, int opponentNumber, Dictionary<string, int> scored, List<(string home, string away, string result)> results)
+void Utakmica(Dictionary<string, (string position, int rating)> rjecnik, Dictionary<string, (int bodovi, int goalDifference)> tablica, int opponentNumber, Dictionary<string, int> scored, List<(string home, string away, string result)> results)
 {
     string[] opponents = new string[] { "Maroko", "Kanada", "Belgija" };
     var opponent= opponents[opponentNumber];
-    if (Provjera(poz) == true)
+    if (Provjera(rjecnik) == true)
     {
         Console.WriteLine($"Protiv: {opponent}");
         var rand = new Random();
@@ -419,139 +434,149 @@ void Statistika(Dictionary<string, (string position, int rating)> rjecnik, Dicti
 {
     
 
-    Console.WriteLine("1 - Ispis onako kako su spremljeni");
-    Console.WriteLine("2 - Ispis po rating uzlazno");
-    Console.WriteLine("3 - Ispis po ratingu silazno");
-    Console.WriteLine("4 - Ispis igrača po imenu i prezimenu(ispis pozicije i ratinga)");
-    Console.WriteLine("5 - Ispis igrača po ratingu");
-    Console.WriteLine("6 - Ispis igrača po poziciji");
-    Console.WriteLine("7 - Ispis trenutnih prvih 11 igrača");
-    Console.WriteLine("8 - Ispis strijelaca i koliko golova imaju");
-    Console.WriteLine("9 - Ispis svih rezultata ekipe");
-    Console.WriteLine("10 - Ispis rezultat svih ekipa");
-    Console.WriteLine("11 - Ispis tablice grupe");
-    var izbor = Console.ReadLine();
+    
     var ratingDict = rjecnik.OrderBy(x => x.Value.rating).ToDictionary(x => x.Key, x => x.Value);
     var ratingDescending = ratingDict.Reverse().ToDictionary(x=> x.Key, x=> x.Value);
     //var nameDict = rjecnik.OrderBy(x => x.Key).ToDictionary(x => x.Key, x => x.Value);
-    switch (izbor)
+    var loop = 1;
+    while (loop == 1)
     {
-        case "1":
-            IspisRjecnik(rjecnik);
-            break;
-        case "2":
-            
-            IspisRjecnik(ratingDict);
-            break;
-        case "3":
-            IspisRjecnik(ratingDescending);
-            break;
-        case "4":
-            Console.WriteLine("Upišite ime i prezime traženog igrača");
-            var inputKey=Console.ReadLine();
-            var pronađen = 0;
-            foreach (var item in rjecnik)
-            {
-                if (item.Key==inputKey)
-                {
+        Console.WriteLine("1 - Ispis onako kako su spremljeni");
+        Console.WriteLine("2 - Ispis po rating uzlazno");
+        Console.WriteLine("3 - Ispis po ratingu silazno");
+        Console.WriteLine("4 - Ispis igrača po imenu i prezimenu(ispis pozicije i ratinga)");
+        Console.WriteLine("5 - Ispis igrača po ratingu");
+        Console.WriteLine("6 - Ispis igrača po poziciji");
+        Console.WriteLine("7 - Ispis trenutnih prvih 11 igrača");
+        Console.WriteLine("8 - Ispis strijelaca i koliko golova imaju");
+        Console.WriteLine("9 - Ispis svih rezultata ekipe");
+        Console.WriteLine("10 - Ispis rezultat svih ekipa");
+        Console.WriteLine("11 - Ispis tablice grupe");
+        Console.WriteLine("0 - Main Menu");
+        var izbor = Console.ReadLine();
+        switch (izbor)
+        {
+            case "1":
+                IspisRjecnik(rjecnik);
+                break;
+            case "2":
 
-                    Console.WriteLine($"{inputKey},  pozicija {rjecnik[inputKey].position} i rating {rjecnik[inputKey].rating}");
-                    pronađen++; 
-                    break;
-                }
+                IspisRjecnik(ratingDict);
+                break;
+            case "3":
+                IspisRjecnik(ratingDescending);
+                break;
+            case "4":
+                Console.WriteLine("Upišite ime i prezime traženog igrača");
+                var inputKey = Console.ReadLine();
+                var pronađen = 0;
+                foreach (var item in rjecnik)
+                {
+                    if (item.Key == inputKey)
+                    {
 
-            }
-            if (pronađen == 0)
-            {
-                Console.WriteLine("Igrač nije pronađen");
-            }
-            break;
-        case "5":
-            Console.WriteLine("Upišite rating s kojim želite naći igrača");
-            var input= Console.ReadLine();
-            var puta = 0;
-            foreach (var item in rjecnik)
-            {
-                if (item.Value.rating.ToString() == input)
-                {
-                    Console.WriteLine($"{item.Key}, pozicija {item.Value.position} i rating {item.Value.rating}");
-                    puta++;
+                        Console.WriteLine($"{inputKey},  pozicija {rjecnik[inputKey].position} i rating {rjecnik[inputKey].rating}");
+                        pronađen++;
+                        break;
+                    }
+
                 }
-            }
-            if (puta == 0)
-            {
-                Console.WriteLine("Nije pronađen nijedan igrač");
-            }
-            break;
-        case "6":
-            Console.WriteLine("Upišite poziciju s kojim želite naći igrača");
-            var inputPostition = Console.ReadLine();
-            var times = 0;
-            foreach (var item in rjecnik)
-            {
-                if (item.Value.position == inputPostition)
+                if (pronađen == 0)
                 {
-                    Console.WriteLine($"{item.Key}, pozicija {item.Value.position} i rating {item.Value.rating}");
-                    times++;
+                    Console.WriteLine("Igrač nije pronađen");
                 }
-            }
-            if (times == 0)
-            {
-                Console.WriteLine("Nije pronađen nijedan igrač");
-            }
-            break;
-        case "7":
-            IspisRjecnik(StartnaMomcad(rjecnik));
-            break;
-        case "8":
-            Console.WriteLine("Strijelci su");
-            foreach (var item in strijelci)
-            {
-                Console.WriteLine($"{item.Key}, zabijeni golovi: {item.Value}");
-            }
-            if (strijelci.Keys.Count == 0)
-            {
-                Console.WriteLine("Nema strijelaca");
-            }
-            break;
-        case "9":
-            foreach (var item in results)
-            {
-                if (item.home == "Hrvatska")
+                break;
+            case "5":
+                Console.WriteLine("Upišite rating s kojim želite naći igrača");
+                var input = Console.ReadLine();
+                var puta = 0;
+                foreach (var item in rjecnik)
+                {
+                    if (item.Value.rating.ToString() == input)
+                    {
+                        Console.WriteLine($"{item.Key}, pozicija {item.Value.position} i rating {item.Value.rating}");
+                        puta++;
+                    }
+                }
+                if (puta == 0)
+                {
+                    Console.WriteLine("Nije pronađen nijedan igrač");
+                }
+                break;
+            case "6":
+                Console.WriteLine("Upišite poziciju s kojim želite naći igrača");
+                var inputPostition = Console.ReadLine();
+                var times = 0;
+                foreach (var item in rjecnik)
+                {
+                    if (item.Value.position == inputPostition)
+                    {
+                        Console.WriteLine($"{item.Key}, pozicija {item.Value.position} i rating {item.Value.rating}");
+                        times++;
+                    }
+                }
+                if (times == 0)
+                {
+                    Console.WriteLine("Nije pronađen nijedan igrač");
+                }
+                break;
+            case "7":
+                IspisRjecnik(StartnaMomcad(rjecnik));
+                break;
+            case "8":
+                Console.WriteLine("Strijelci su");
+                foreach (var item in strijelci)
+                {
+                    Console.WriteLine($"{item.Key}, zabijeni golovi: {item.Value}");
+                }
+                if (strijelci.Keys.Count == 0)
+                {
+                    Console.WriteLine("Nema strijelaca");
+                }
+                break;
+            case "9":
+                foreach (var item in results)
+                {
+                    if (item.home == "Hrvatska")
+                    {
+                        Console.WriteLine($"{item.home} {item.result} {item.away}");
+                    }
+                }
+                if (results.Count == 0)
+                {
+                    Console.WriteLine("Nije odigrana ni jedna utakmica");
+                }
+                break;
+            case "10":
+                foreach (var item in results)
                 {
                     Console.WriteLine($"{item.home} {item.result} {item.away}");
                 }
-            }
-            if (results.Count == 0)
-            {
-                Console.WriteLine("Nije odigrana ni jedna utakmica");
-            }
-            break;
-        case "10":
-            foreach (var item in results)
-            {
-                Console.WriteLine($"{item.home} {item.result} {item.away}");
-            }
-            if (results.Count == 0)
-            {
-                Console.WriteLine("Nije odigrana ni jedna utakmica");
-            }
-            break;
-        case "11":
-            var pos = 1;
-            Console.WriteLine("Pozicija   Zemlja   Bodovi   Gol diferenca");
-            foreach(var item in tablica)
-            {
-                Console.WriteLine($"{pos} {item.Key} {item.Value.bodovi} {item.Value.goalDifference}");
-                pos++;
-            }
-            break;
-        default:
-            Console.WriteLine("Nije validan input");
-            break;
-        
+                if (results.Count == 0)
+                {
+                    Console.WriteLine("Nije odigrana ni jedna utakmica");
+                }
+                break;
+            case "11":
+                var pos = 1;
+                Console.WriteLine("Pozicija   Zemlja   Bodovi   Gol diferenca");
+                foreach (var item in tablica)
+                {
+                    Console.WriteLine($"{pos} {item.Key} {item.Value.bodovi} {item.Value.goalDifference}");
+                    pos++;
+                }
+                break;
+            case "0":
+                loop = 0;
+                return;
+            default:
+                Console.WriteLine("Nije validan input");
+                break;
 
+
+        }
     }
+    
     Console.WriteLine(" ");
 }
 StartnaMomcad(igraci);
@@ -573,15 +598,16 @@ while (igra == 1)
             break;
         case "2":
             Console.WriteLine(" ");
-            if (kolo < 3)
+            if (kolo < 3 && Provjera(igraci)==true)
             {
                 Console.WriteLine($"{kolo}");
-                Utakmica(igraci, pozicije, table, kolo, strijelci, rezultati);
+                Utakmica(igraci, table, kolo, strijelci, rezultati);
                 kolo++;
             }
             else
             {
-                Console.WriteLine("Vec su odigrana sva kola");
+                var errorText = (kolo > 2) ? "Vec su odigrana sva kola" : "Nije eligibilno igrati utakmicu";
+                Console.WriteLine(errorText);
             }
             break;
         case "3":
