@@ -212,7 +212,7 @@ void Edit(Dictionary<string, (string position, int rating)> rjecnik, Dictionary<
                             case "1":
                                 Console.WriteLine("Upišite novo ime igrača");
                                 var newName = Console.ReadLine().Trim().TrimEnd();
-                                if (newName.Length == 0)//Provjere kao i u sekciji gdje radimo novog igrača, ništa pretjerano novo
+                                if (newName.Length == 0 || rjecnik.ContainsKey(newName)==true)//Provjere kao i u sekciji gdje radimo novog igrača, ništa pretjerano novo
                                 {
                                     Console.WriteLine("Netočno ime");
                                     break;
